@@ -1,0 +1,15 @@
+streamlit == 1.43.2
+matplotlib == 3.9.4
+firebase-admin == 6.7.0
+streamlit>=1.25.0
+langchain>=0.0.294
+langchain_community>=0.0.12
+langchain_groq>=0.2.2
+faiss-cpu>=1.7.4
+sentence-transformers>=2.2.2
+transformers>=4.32.0
+numpy>=1.21.6
+PyPDF>=3.0.0
+fastembed
+PyMuPDF
+langfuse == 2.60.2
