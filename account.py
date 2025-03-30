@@ -6,7 +6,7 @@ import re
 import json
 # Initialize Firebase
 if not firebase_admin._apps:
-    firebase_config = json.loads(st.secrets[firebase])  # Load from Streamlit secrets
+    firebase_config = json.loads(st.secrets["firebase"])  # Load from Streamlit secrets
     cred = credentials.Certificate(firebase_config)
     firebase_admin.initialize_app(cred)
 
