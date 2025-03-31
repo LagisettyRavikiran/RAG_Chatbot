@@ -8,6 +8,7 @@ import numpy as np
 import torch
 import random
 import yaml
+from fastembed import FastEmbedEmbeddings
 from transformers import CLIPProcessor, CLIPModel
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import FastEmbedEmbeddings
@@ -160,7 +161,11 @@ def main_app_2():
             child_overlap=12
         )
         text_chunks = text_splitter.create_parent_child_chunks(all_texts)
-        text_embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
+        try:
+            text_embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-m3")
+            print("Model loaded successfully!")
+        except Exception as e:
+            print(f"Error loading model: {e}")
         text_db = FAISS.from_documents(text_chunks, text_embeddings)
         image_embeddings = generate_image_embeddings(all_images)
         dimension = image_embeddings.shape[1]
