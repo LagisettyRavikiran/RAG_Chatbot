@@ -160,8 +160,11 @@ def main_app_2():
             child_overlap=12
         )
         text_chunks = text_splitter.create_parent_child_chunks(all_texts)
-        os.environ["HF_HUB_CACHE"] = "./huggingface_cache"
-        text_embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model.save("local_all_miniLM_model")
+        model_path = "./local_all_miniLM_model"
+        text_embeddings = HuggingFaceEmbeddings(model_name=model_path)
         print("Model loaded successfully!")
         text_db = FAISS.from_documents(text_chunks, text_embeddings)
         image_embeddings = generate_image_embeddings(all_images)
