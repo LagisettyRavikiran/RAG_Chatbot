@@ -160,7 +160,7 @@ def main_app_2():
             child_overlap=12
         )
         text_chunks = text_splitter.create_parent_child_chunks(all_texts)
-        text_embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-m3")
+        text_embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
         print("Model loaded successfully!")
         text_db = FAISS.from_documents(text_chunks, text_embeddings)
         image_embeddings = generate_image_embeddings(all_images)
