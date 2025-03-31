@@ -13,3 +13,4 @@ PyPDF>=3.0.0
 fastembed
 PyMuPDF
 langfuse
+langchain-huggingface
