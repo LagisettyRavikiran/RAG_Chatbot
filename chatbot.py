@@ -10,7 +10,7 @@ import random
 import yaml
 from transformers import CLIPProcessor, CLIPModel
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import FastEmbedEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
@@ -160,12 +160,7 @@ def main_app_2():
             child_overlap=12
         )
         text_chunks = text_splitter.create_parent_child_chunks(all_texts)
-        from sentence_transformers import SentenceTransformer
-        model = SentenceTransformer("all-MiniLM-L6-v2")
-        model.save("local_all_miniLM_model")
-        model_path = "./local_all_miniLM_model"
-        text_embeddings = HuggingFaceEmbeddings(model_name=model_path)
-        print("Model loaded successfully!")
+        text_embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
         text_db = FAISS.from_documents(text_chunks, text_embeddings)
         image_embeddings = generate_image_embeddings(all_images)
         dimension = image_embeddings.shape[1]
@@ -211,12 +206,14 @@ def main_app_2():
                     source_documents = result.get("source_documents", [])
                     references = [
                         {
-                            "chunk": doc.page_content[:300],  # First 200 characters of the chunk
+                            "chunk": doc.page_content[:200],  # First 200 characters of the chunk
                             "source": doc.metadata.get("source", "Unknown"),  # Extract filename or source
                             "page": doc.metadata.get("page", "N/A"),  # Page number if available
                         }
                         for doc in source_documents
                     ]
+
+                    # Log the response along with references in Langfuse
                     answer = "I don't know." if "i don't have real-time information" in result["answer"].lower() else result["answer"]
                     formatted_answer = prompt_template["output_format"].format(answer=answer)
                     log_llm_response(trace, formatted_answer)
@@ -259,7 +256,7 @@ def main_app_2():
                                 with st.form(key='uv_form',clear_on_submit=False):
                                     st.markdown("Upvote Feedback")
                                     # Here we assign a key so that it can be uniquely identified and displayed
-                                    user_input = st.text_area("Provide feedback for upvote and click on submit:", key = "uv_user_input")      
+                                    user_input = st.text_area("Provide feedback for upvote and click on submit:", key = "uv_user_input")
                                     submitted=st.form_submit_button("Submit", on_click = upvote_success_msg, type = "primary")
                         # Downvote elements
                         with col2:
