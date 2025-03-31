@@ -123,7 +123,7 @@ def login_page():
 
 # Dashboard with sidebar
 def dashboard():
-    st.sidebar.title(f"Welcome, {st.session_state.username}")
+    st.sidebar.title(f"Welcome, {st.session_state.username} 😀")
     option = st.sidebar.selectbox("Select an option", ["PDF Q&A ReaderBot"])
     
     if option == "PDF Q&A ReaderBot":
