@@ -13,4 +13,3 @@ PyPDF>=3.0.0
 fastembed
 PyMuPDF
 langfuse
-sqlite3
