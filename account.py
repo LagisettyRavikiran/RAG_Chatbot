@@ -1,18 +1,58 @@
 import streamlit as st
-import firebase_admin
-from firebase_admin import credentials, auth
+import sqlite3
 from chatbot import main_app_2  # Assuming main_app_2 is implemented in pdf_reader.py
 import re
-import json
-# Initialize Firebase
-if not firebase_admin._apps:
-    firebase_config = json.loads(st.secrets["firebase"])  # Load from Streamlit secrets
-    cred = credentials.Certificate(firebase_config)
-    firebase_admin.initialize_app(cred)
-
-st.set_page_config(page_title="AI Assistant & PDF Q&A Bot", layout="wide",page_icon="🤖")
+import hashlib
+st.set_page_config(page_title="AI Assistant & PDF Q&A Bot", layout="wide", page_icon="🤖")
 with open('./css/style.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+# Database setup
+def create_users_table():
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL)''')
+    conn.commit()
+    conn.close()
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def add_user(username, email, password):
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+    try:
+        c.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", 
+                  (username, email, hash_password(password)))
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False  # Email already exists
+    finally:
+        conn.close()
+
+def authenticate_user(email, password):
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+    c.execute("SELECT username FROM users WHERE email = ? AND password = ?", 
+              (email, hash_password(password)))
+    user = c.fetchone()
+    conn.close()
+    return user
+
+def validate_password(password):
+    if (len(password) > 6 or
+        not re.search(r'[A-Z]', password) or
+        not re.search(r'\d', password) or
+        not re.search(r'[@$!%*?&]', password)):
+        return False
+    return True
+
+# Initialize database
+create_users_table()
 # Initialize session state variables
 if 'page' not in st.session_state:
     st.session_state.page = 'login'
@@ -26,19 +66,19 @@ if 'signout' not in st.session_state:
     st.session_state.signout = False
 if 'selected_app' not in st.session_state:
     st.session_state.selected_app = 'chatbot'
+
 # Login function
 def login(email, password):
-    try:
-        user = auth.get_user_by_email(email)
-        st.session_state.username = user.uid  # Using UID as the username
-        st.session_state.useremail = user.email
+    user = authenticate_user(email, password)
+    if user:
+        st.session_state.username = user[0]  # Username from DB
+        st.session_state.useremail = email
         st.session_state.signedout = True
         st.session_state.signout = True
         st.session_state.page = 'dashboard'
         st.success("Login successful")
-        # st.query_params(page='dashboard')  # Update URL
-    except Exception as e:
-        st.warning(f'Login failed: {str(e)}')
+    else:
+        st.warning("Invalid email or password")
 
 # Logout function
 def logout():
@@ -47,7 +87,6 @@ def logout():
     st.session_state.username = ''
     st.session_state.useremail = ''
     st.session_state.page = 'login'
-    # st.query_params(page='login')  # Update URL
 
 # Signup function
 def signup():
@@ -57,20 +96,17 @@ def signup():
     username = st.text_input("Enter your Name")
     
     if st.button('Create my account'):
-        try:
-            user = auth.create_user(email=email, password=password, uid=username)
+        if not validate_password(password):
+            st.warning("Password must be at most 6 characters long and include at least one capital letter, one special character, and one digit.")
+        elif add_user(username, email, password):
             st.success('Account created successfully')
-            st.session_state.page = 'login'  # Redirect to login page
-            # st.query_params(page='login')
+            st.session_state.page = 'login'
             st.rerun()
-        except firebase_admin.auth.EmailAlreadyExistsError:
+        else:
             st.error('Account creation failed: Email already exists')
-        except Exception as e:
-            st.error(f'Account creation failed: {str(e)}')
     
     if st.button("Already have an account? Login"):
         st.session_state.page = 'login'
-        # st.query_params(page='login')
         st.rerun()
 
 # Login page
@@ -83,7 +119,6 @@ def login_page():
     
     if st.button("Don't have an account? Create one"):
         st.session_state.page = 'signup'
-        # st.query_params(page='signup')
         st.rerun()
 
 # Dashboard with sidebar
@@ -100,6 +135,7 @@ def dashboard():
     
     if st.session_state.selected_app == 'chatbot':
         main_app_2()
+
 if st.session_state.page == 'login':
     st.title("Welcome to AI Assistant Resume & PDF Q&A Bot")
     login_page()

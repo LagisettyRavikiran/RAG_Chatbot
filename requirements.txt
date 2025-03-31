@@ -13,3 +13,4 @@ PyPDF>=3.0.0
 fastembed
 PyMuPDF
 langfuse == 2.60.2
+sqlite3
