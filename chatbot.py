@@ -203,11 +203,29 @@ def main_app_2():
                     global current_trace_id
                     current_trace_id = trace.id
                     result = qa({"question": formatted_query})
+                    source_documents = result.get("source_documents", [])
+                    references = [
+                        {
+                            "chunk": doc.page_content[:300],  # First 200 characters of the chunk
+                            "source": doc.metadata.get("source", "Unknown"),  # Extract filename or source
+                            "page": doc.metadata.get("page", "N/A"),  # Page number if available
+                        }
+                        for doc in source_documents
+                    ]
+                    trace.update(
+                        output={"response": answer},
+                        metadata={"references": references},  # Store references in metadata
+                        status="completed"
+                    )
                     answer = "I don't know." if "i don't have real-time information" in result["answer"].lower() else result["answer"]
                     formatted_answer = prompt_template["output_format"].format(answer=answer)
                     log_llm_response(trace, formatted_answer)
                     print(trace)
                     st.write("💡Answer:", formatted_answer)
+                    if references:
+                        with st.expander("📖 References (Click to Expand)"):
+                            for ref in references:
+                                st.write(ref)
                     st.info("Check the '📸 Explore Images' tab to view related images!")
                     print("User Query and LLM Response is done")
                     print("---------------- USER FEEDBACK ----------------")
