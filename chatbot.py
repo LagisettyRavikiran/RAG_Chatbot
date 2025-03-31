@@ -10,7 +10,7 @@ import random
 import yaml
 from transformers import CLIPProcessor, CLIPModel
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import FastEmbedEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
@@ -160,7 +160,7 @@ def main_app_2():
             child_overlap=12
         )
         text_chunks = text_splitter.create_parent_child_chunks(all_texts)
-        text_embeddings = FastEmbedEmbeddings(model_name='BAAI/bge-small-en-v1.5')
+        text_embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         print("Model loaded successfully!")
         text_db = FAISS.from_documents(text_chunks, text_embeddings)
         image_embeddings = generate_image_embeddings(all_images)
