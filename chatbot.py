@@ -160,6 +160,7 @@ def main_app_2():
             child_overlap=12
         )
         text_chunks = text_splitter.create_parent_child_chunks(all_texts)
+        os.environ["HF_HUB_CACHE"] = "./huggingface_cache"
         text_embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         print("Model loaded successfully!")
         text_db = FAISS.from_documents(text_chunks, text_embeddings)
