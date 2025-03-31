@@ -8,7 +8,6 @@ import numpy as np
 import torch
 import random
 import yaml
-from fastembed import FastEmbedEmbeddings
 from transformers import CLIPProcessor, CLIPModel
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import FastEmbedEmbeddings
