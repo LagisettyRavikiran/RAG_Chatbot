@@ -212,16 +212,16 @@ def main_app_2():
                         }
                         for doc in source_documents
                     ]
-                    trace.update(
-                        output={"response": answer},
-                        metadata={"references": references},  # Store references in metadata
-                        status="completed"
-                    )
                     answer = "I don't know." if "i don't have real-time information" in result["answer"].lower() else result["answer"]
                     formatted_answer = prompt_template["output_format"].format(answer=answer)
                     log_llm_response(trace, formatted_answer)
                     print(trace)
                     st.write("💡Answer:", formatted_answer)
+                    trace.update(
+                        output={"response": formatted_answer},
+                        metadata={"references": references},  # Store references in metadata
+                        status="completed"
+                    )
                     if references:
                         with st.expander("📖 References (Click to Expand)"):
                             for ref in references:
