@@ -12,5 +12,5 @@ numpy>=1.21.6
 PyPDF>=3.0.0
 fastembed
 PyMuPDF
-langfuse == 2.60.2
+langfuse
 sqlite3
