@@ -4,7 +4,7 @@
 /* Global Styles */
 body {
     font-family: 'Poppins', sans-serif;
-    background: #095402d3; /* Cream Color */
+    background: #dfcd78d3; /* Cream Color */
     color: #000000; /* Black Text Color */
     margin: 0;
     padding: 0;
@@ -28,7 +28,7 @@ body {
 
 /* Titles and Headings */
 h1, h2, h3, h4, h5, h6 {
-    color: #e03fdd;
+    color: #000000;
     text-align: justify;
 }
 

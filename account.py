@@ -44,7 +44,7 @@ def authenticate_user(email, password):
     return user
 
 def validate_password(password):
-    if (len(password) > 6 or
+    if (len(password) < 6 or
         not re.search(r'[A-Z]', password) or
         not re.search(r'\d', password) or
         not re.search(r'[@$!%*?&]', password)):
@@ -97,7 +97,7 @@ def signup():
     
     if st.button('Create my account'):
         if not validate_password(password):
-            st.warning("Password must be at most 6 characters long and include at least one capital letter, one special character, and one digit.")
+            st.warning("Password must be at least 6 characters long and include at least one capital letter, one special character, and one digit.")
         elif add_user(username, email, password):
             st.success('Account created successfully')
             st.session_state.page = 'login'

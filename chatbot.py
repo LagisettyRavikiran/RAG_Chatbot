@@ -248,7 +248,7 @@ def main_app_2():
         with tab2:
             st.subheader("📸 Extracted Images")
             for img_path in all_images:
-                st.image(img_path, use_container_width=True)
+                st.image(img_path, use_column_width=True)
 
         st.sidebar.subheader("📜 Extracted Text")
         for i, text in enumerate(all_texts):
